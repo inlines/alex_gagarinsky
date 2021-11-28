@@ -4,6 +4,10 @@
     <meta charset="UTF-8" />
     <title>ALEX!!</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.11.0/dist/phaser.js"></script>
+    <script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
     <style type="text/css">
         body {
             margin: 0;
@@ -15,10 +19,41 @@
 <h1>Помогите Алексею в сборе яиц!</h1>
 <h2 id="warn" style="color: red; display: none;">Гагаринский район любит и уважает вас!!!</h2>
 <h2 id="end" style="color: black; display: none;">Новая легенда Москвы</h2>
+<div id="scores">
+
+</div>
 <button id="start-button">НАЧАТЬ СБОР!</button>
 <script type="text/javascript">
 
     document.getElementById('start-button').addEventListener('click', start);
+
+    scores = []
+    function loadScores() {
+        $.get(
+            "/scores.php",
+            null,
+            function(data) {
+                scores = JSON.parse(data);
+                drawScores();
+            }
+        );
+    };
+
+    function submitScore(score) {
+        var name = prompt("Please enter your name");
+        if (name != null) {
+            $.post( "/add-score.php", { name, score } , function(){
+                loadScores();
+            });
+        }
+    }
+
+    function drawScores() {
+        $('#scores').children().remove();
+        for( var i in scores) {
+            $('#scores').append(`<div><span>${scores[i].name}</span><span style="margin-left:100px;">${scores[i].score}</span></div>`);
+        }
+    }
 
     function start() {
         document.getElementById('start-button').style.display = 'none';
@@ -218,6 +253,7 @@ function hitBomb (player, bomb)
 
     gameOver = true;
     tune.stop();
+    submitScore(score);
 }
 }
 </script>
